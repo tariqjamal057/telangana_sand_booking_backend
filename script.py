@@ -3,7 +3,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
+from selenium.common.exceptions import (
+    UnexpectedAlertPresentException,
+    NoAlertPresentException,
+)
 import time
 import json
 import requests
@@ -93,7 +96,7 @@ try:
 
     # Click the login button
     print("[INFO] Clicking login button...")
-    
+
     # Handle any alerts that might appear
     try:
         login_button.click()
@@ -139,19 +142,19 @@ try:
             otp_submit = WebDriverWait(driver, 30).until(
                 EC.element_to_be_clickable((By.ID, "btnCOTPSubmit"))
             )
-            
+
             # Ensure button is visible and clickable
             driver.execute_script("arguments[0].scrollIntoView(true);", otp_submit)
             time.sleep(1)
-            
+
             # Click OTP submit button
             try:
                 otp_submit.click()
                 print("[SUCCESS] OTP submitted")
-                
+
                 # Wait for response
                 time.sleep(3)
-                
+
                 # Check for any alerts after OTP
                 try:
                     alert = driver.switch_to.alert
@@ -159,18 +162,21 @@ try:
                     alert.accept()
                 except NoAlertPresentException:
                     print("[SUCCESS] No alerts after OTP submission")
-                    
+
             except UnexpectedAlertPresentException as e:
                 print(f"[ALERT] After OTP click: {e.alert_text}")
                 alert = driver.switch_to.alert
                 alert.accept()
-                
+
     except Exception as e:
         print(f"[INFO] Checking page state: {e}")
-        
+
         # Check for any error messages on page
         try:
-            error_elements = driver.find_elements(By.XPATH, "//*[contains(@class, 'error') or contains(text(), 'invalid')]")
+            error_elements = driver.find_elements(
+                By.XPATH,
+                "//*[contains(@class, 'error') or contains(text(), 'invalid')]",
+            )
             for error in error_elements:
                 print(f"[ERROR] Found error: {error.text}")
         except:
