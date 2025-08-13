@@ -10,6 +10,8 @@ class UserOTP(models.Model):
         db_table = 'user_otp'
         verbose_name = 'User OTP'
         verbose_name_plural = 'User OTPs'
+        unique_together = ('phone_number', 'otp_secret')
+
 
 
     def __str__(self):
