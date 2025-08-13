@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class UserOTP(models.Model):
-    phone_number = models.CharField(max_length=15, unique=True)
+    phone_number = models.CharField(max_length=15)
     otp_secret = models.CharField(max_length=100)
     otp_created_at = models.DateTimeField(auto_now_add=True)
 
