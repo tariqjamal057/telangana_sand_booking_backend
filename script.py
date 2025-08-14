@@ -8,96 +8,138 @@ from selenium.common.exceptions import (
     NoAlertPresentException,
 )
 import time
-import json
 import requests
 from PIL import Image
 import io
 import easyocr
 import numpy as np
 
-# Your credentials
-USERNAME = "6387980386"
+USERNAME = "8838051718"
 PASSWORD = "12345678"
-OTP_VALUE = "12345g"  # constant for now
 LOGIN_URL = "https://onlinebooking.sand.telangana.gov.in/Masters/Home.aspx"
 
-# Set up Selenium
 chrome_options = Options()
 chrome_options.add_argument("--start-maximized")
 driver = webdriver.Chrome(options=chrome_options)
-driver.get(LOGIN_URL)
+wait = WebDriverWait(driver, 10)
 
-# Wait for page to load
-time.sleep(3)
 
-# Handle any initial alerts
-try:
-    alert = driver.switch_to.alert
-    alert.accept()
-    print("[INFO] Initial alert accepted")
-except NoAlertPresentException:
-    pass
+def fill_login_details():
+    """Fills username, password, captcha. Returns False if password not encrypted."""
 
-# Find username input and fill it
-username_input = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located(
-        (
-            By.XPATH,
-            "//td[contains(text(), 'User name')]/following-sibling::td//input[@type='text']",
+    try:
+        modal = driver.find_element(By.CLASS_NAME, "modal")
+        if modal.is_displayed():
+            driver.execute_script("arguments[0].style.display = 'none';", modal)
+            print("[INFO] Closed blocking modal")
+    except:
+        pass
+
+    # Fill username first
+    username_input = wait.until(
+        EC.presence_of_element_located(
+            (
+                By.XPATH,
+                "//td[contains(text(), 'User name')]/following-sibling::td//input[@type='text']",
+            )
         )
     )
-)
-username_input.clear()
-username_input.send_keys(USERNAME)
+    username_input.clear()
+    username_input.send_keys(USERNAME)
 
-# Find password input and fill it
-password_input = driver.find_element(
-    By.XPATH,
-    "//td[contains(text(), 'Password')]/following-sibling::td//input[@type='password']",
-)
-password_input.clear()
-password_input.send_keys(PASSWORD)
+    # Fill password
+    password_input = driver.find_element(
+        By.XPATH,
+        "//td[contains(text(), 'Password')]/following-sibling::td//input[@type='password']",
+    )
+    print("Before adding ", password_input.get_attribute("value"))
+    password_input.clear()
+    password_input.send_keys(PASSWORD)
 
-# Wait for captcha image
-WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "imgCaptcha")))
+    # Blur to trigger encryption
+    driver.execute_script("arguments[0].blur();", password_input)
+    time.sleep(0.5)  # give time for JS encryption
 
-# Extract captcha image
-captcha_url = driver.find_element(By.ID, "imgCaptcha").get_attribute("src")
-print("[INFO] Captcha Image URL:", captcha_url)
+    print("After adding ", password_input.get_attribute("value"))
 
-# Create an EasyOCR reader for English
-reader = easyocr.Reader(["en"])
+    # Check encryption
+    if PASSWORD == password_input.get_attribute("value"):
+        print("[WARN] Password is still plain text — encryption failed.")
+        return False
+    else:
+        print("[INFO] Password is encrypted.")
 
-# Download captcha
-response = requests.get(captcha_url)
+    # Solve captcha
+    wait.until(EC.presence_of_element_located((By.ID, "imgCaptcha")))
+    captcha_url = driver.find_element(By.ID, "imgCaptcha").get_attribute("src")
+    print("[INFO] Captcha Image URL:", captcha_url)
 
-# Convert to NumPy array
-captcha_image = Image.open(io.BytesIO(response.content))
-captcha_np = np.array(captcha_image)
+    reader = easyocr.Reader(["en"])
+    response = requests.get(captcha_url)
+    captcha_image = Image.open(io.BytesIO(response.content))
+    captcha_np = np.array(captcha_image)
+    captcha_results = reader.readtext(captcha_np, detail=0)
+    captcha_text = captcha_results[0] if captcha_results else ""
+    captcha_text = captcha_text.strip()
+    final_captcha_text = ""
+    for char in captcha_text:
+        if not char.isdigit():
+            final_captcha_text += char.upper()
+        else:
+            final_captcha_text += char
+    captcha_text = final_captcha_text.strip()
 
-# Read text from captcha
-captcha_results = reader.readtext(captcha_np, detail=0)
-captcha_text = captcha_results[0] if captcha_results else ""
-captcha_text = captcha_text.strip()
+    print(f"[INFO] Extracted Captcha Text: {captcha_text}")
 
-print(f"[INFO] Extracted Captcha Text: {captcha_text}")
+    captcha_field = driver.find_element(By.ID, "txtEnterCode")
+    captcha_field.clear()
+    captcha_field.send_keys(captcha_text)
+    return True
 
-# Fill captcha
-captcha_field = driver.find_element(By.ID, "txtEnterCode")
-captcha_field.clear()
-captcha_field.send_keys(captcha_text)
 
-# Wait for login button to become enabled (after timer)
-print("[INFO] Waiting for login button to be enabled...")
-try:
+def get_recent_otp():
+    otp_response = requests.get(
+        f"https://telangana-sand-booking-backend.onrender.com/otp/recent/?number={USERNAME}"
+    )
+    return otp_response.json()
+
+
+def add_login_otp():
+    OTP_VALUE = get_recent_otp()["otp_secret"]
+
+    otp_input = WebDriverWait(driver, 5).until(
+        EC.element_to_be_clickable((By.ID, "txtCOTP"))
+    )
+    otp_input.clear()
+    otp_input.send_keys(OTP_VALUE)
+    print("[INFO] OTP entered")
+
+    otp_submit = WebDriverWait(driver, 30).until(
+        EC.element_to_be_clickable((By.ID, "btnCOTPSubmit"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", otp_submit)
+    time.sleep(1)
+    otp_submit.click()
+    print("[SUCCESS] OTP submitted")
+    time.sleep(3)
+    try:
+        alert = driver.switch_to.alert
+        print(f"[ALERT] After OTP: {alert.text}")
+        alert.accept()
+        return False
+    except NoAlertPresentException:
+        print("[SUCCESS] No alerts after OTP submission")
+
+    return True
+
+
+def process_login():
+    """Clicks login and handles OTP."""
+    print("[INFO] Waiting for login button to be enabled...")
     login_button = WebDriverWait(driver, 30).until(
         EC.element_to_be_clickable((By.ID, "btnLogin"))
     )
 
-    # Click the login button
-    print("[INFO] Clicking login button...")
-
-    # Handle any alerts that might appear
     try:
         login_button.click()
         print("[INFO] Login button clicked successfully")
@@ -107,10 +149,7 @@ try:
         alert.accept()
         print("[INFO] Alert accepted")
 
-    # Wait for response
     time.sleep(5)
-
-    # Check for any alerts
     try:
         alert = driver.switch_to.alert
         print(f"[ALERT] Alert text: {alert.text}")
@@ -119,72 +158,53 @@ try:
     except NoAlertPresentException:
         pass
 
-    # Check current state
     current_url = driver.current_url
     print(f"[INFO] Current URL: {current_url}")
 
-    # Check if OTP form is available
     try:
-        # Check if OTP modal is displayed
         otp_modal = driver.find_element(By.ID, "myModal")
         if otp_modal.is_displayed():
             print("[SUCCESS] OTP modal appeared")
+            time.sleep(10)
+            login_otp_verification = False
 
-            # Find OTP input field
-            otp_input = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.ID, "txtCOTP"))
-            )
-            otp_input.clear()
-            otp_input.send_keys(OTP_VALUE)
-            print("[INFO] OTP entered")
+            for _ in range(3):
+                if add_login_otp():
+                    login_otp_verification = True
+                    break
 
-            # Find submit button
-            otp_submit = WebDriverWait(driver, 30).until(
-                EC.element_to_be_clickable((By.ID, "btnCOTPSubmit"))
-            )
+            if not login_otp_verification:
+                login_otp_reset_button = WebDriverWait(driver, 5).until(
+                    EC.element_to_be_clickable((By.ID, "btnCOTPResend"))
+                )
+                login_otp_reset_button.click()
+                time.sleep(10)
+                for _ in range(3):
+                    if add_login_otp():
+                        break
 
-            # Ensure button is visible and clickable
-            driver.execute_script("arguments[0].scrollIntoView(true);", otp_submit)
-            time.sleep(1)
-
-            # Click OTP submit button
-            try:
-                otp_submit.click()
-                print("[SUCCESS] OTP submitted")
-
-                # Wait for response
-                time.sleep(3)
-
-                # Check for any alerts after OTP
-                try:
-                    alert = driver.switch_to.alert
-                    print(f"[ALERT] After OTP: {alert.text}")
-                    alert.accept()
-                except NoAlertPresentException:
-                    print("[SUCCESS] No alerts after OTP submission")
-
-            except UnexpectedAlertPresentException as e:
-                print(f"[ALERT] After OTP click: {e.alert_text}")
-                alert = driver.switch_to.alert
-                alert.accept()
-
+            return True
     except Exception as e:
         print(f"[INFO] Checking page state: {e}")
+        return False
 
-        # Check for any error messages on page
-        try:
-            error_elements = driver.find_elements(
-                By.XPATH,
-                "//*[contains(@class, 'error') or contains(text(), 'invalid')]",
-            )
-            for error in error_elements:
-                print(f"[ERROR] Found error: {error.text}")
-        except:
-            pass
 
-except Exception as e:
-    print(f"[ERROR] Failed during login process: {e}")
+# === Main execution ===
+driver.get(LOGIN_URL)
+time.sleep(2)
 
-# Keep browser open for verification
+# Retry loop if encryption fails
+attempt = 0
+for i in range(3):
+    print(f"[INFO] Login attempt #{attempt}")
+    if not fill_login_details():
+        driver.refresh()
+        time.sleep(2)
+        continue
+    else:
+        if process_login():
+            print("[SUCCESS] Login successful")
+            break
+
 time.sleep(30)
 driver.quit()
