@@ -1,0 +1,24 @@
+[
+  {
+    "districtId": 19,
+    "mandalId": "83",
+    "villages": [
+      {
+        "name": "--Select--",
+        "did": "00"
+      },
+      {
+        "name": "Adilabad",
+        "did": "100"
+      },
+      {
+        "name": "Bhukthapur",
+        "did": "102"
+      },
+      {
+        "name": "Khanapur",
+        "did": "101"
+      }
+    ]
+  }
+]

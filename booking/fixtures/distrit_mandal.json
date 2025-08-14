@@ -1,0 +1,83 @@
+[
+  {
+    "districtId": 19,
+    "mandals": [
+      {
+        "name": "--Select--",
+        "did": "00"
+      },
+      {
+        "name": "Adilabad (Urban)",
+        "did": "83"
+      },
+      {
+        "name": "Adilabad Rural",
+        "did": "66"
+      },
+      {
+        "name": "Bazarhatnoor",
+        "did": "69"
+      },
+      {
+        "name": "Bela",
+        "did": "70"
+      },
+      {
+        "name": "Bheempur",
+        "did": "74"
+      },
+      {
+        "name": "Boath",
+        "did": "71"
+      },
+      {
+        "name": "Gadiguda",
+        "did": "81"
+      },
+      {
+        "name": "Gudihatnoor",
+        "did": "68"
+      },
+      {
+        "name": "Ichoda",
+        "did": "77"
+      },
+      {
+        "name": "Indravelly",
+        "did": "79"
+      },
+      {
+        "name": "Jainath",
+        "did": "72"
+      },
+      {
+        "name": "Mavala",
+        "did": "67"
+      },
+      {
+        "name": "Narnoor",
+        "did": "80"
+      },
+      {
+        "name": "Neradigonda",
+        "did": "76"
+      },
+      {
+        "name": "Sirikonda",
+        "did": "78"
+      },
+      {
+        "name": "Talamadugu",
+        "did": "75"
+      },
+      {
+        "name": "Tamsi",
+        "did": "73"
+      },
+      {
+        "name": "Utnoor",
+        "did": "82"
+      }
+    ]
+  }
+]
