@@ -5,7 +5,13 @@ import requests
 from django.conf import settings
 import json
 
-from booking.models import District, StockYard, Mandal, MandalVillage
+from .models import District, StockYard, Mandal, MandalVillage
+from .serializers import (
+    DistrictSerializer,
+    DistrictStockyardSerializer,
+    MandalSerializer,
+    MandalVillageSerializer,
+)
 
 
 class LoadInitialDataView(APIView):
@@ -88,6 +94,57 @@ class LoadInitialDataView(APIView):
             return Response(
                 {"message": "Data loaded successfully"}, status=status.HTTP_200_OK
             )
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class GetAllDistrictView(APIView):
+    def get(self, request):
+        try:
+            districts = District.objects.all()
+            serializer = DistrictSerializer(districts, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class GetDistrictStockyard(APIView):
+    def get(self, request, did):
+        try:
+            district = District.objects.get(did=did)
+            stockyards = StockYard.objects.filter(district=district)
+            serializer = DistrictStockyardSerializer(stockyards, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class GetDistrictMandal(APIView):
+    def get(self, request, did):
+        try:
+            district = District.objects.get(did=did)
+            mandals = Mandal.objects.filter(district=district)
+            serializer = MandalSerializer(mandals, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class GetMandalVillages(APIView):
+    def get(self, request, mid):
+        try:
+            mandal = Mandal.objects.get(mid=mid)
+            villages = MandalVillage.objects.filter(mandal=mandal)
+            serializer = MandalVillageSerializer(villages, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
