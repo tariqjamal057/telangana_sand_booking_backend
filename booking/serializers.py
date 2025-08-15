@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import District, StockYard, Mandal, MandalVillage
+from .models import District, StockYard, Mandal, MandalVillage, BookingUserCredential
 
 
 class DistrictSerializer(serializers.ModelSerializer):
@@ -29,4 +29,10 @@ class MandalVillageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MandalVillage
+        fields = "__all__"
+
+
+class BookingUserCredentialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookingUserCredential
         fields = "__all__"

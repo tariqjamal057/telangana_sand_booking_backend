@@ -5,6 +5,8 @@ from .views import (
     GetDistrictStockyard,
     GetDistrictMandal,
     GetMandalVillages,
+    CreateListUser,
+    BookingUserRetriveUpdateView,
 )
 
 urlpatterns = [
@@ -21,4 +23,6 @@ urlpatterns = [
         GetMandalVillages.as_view(),
         name="get-villages",
     ),
+    path("users", CreateListUser.as_view(), name="create-users"),
+    path("users/<int:pk>", BookingUserRetriveUpdateView.as_view(), name="update-users"),
 ]

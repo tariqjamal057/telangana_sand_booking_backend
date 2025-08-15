@@ -55,3 +55,13 @@ class MandalVillage(models.Model):
         db_table = "mandal_villages"
         verbose_name = "Mandal Village"
         verbose_name_plural = "Mandal Villages"
+
+
+class BookingUserCredential(models.Model):
+    username = models.CharField(max_length=250, unique=True)
+    password = models.CharField(max_length=250)
+
+    class Meta:
+        db_table = "booking_user_list"
+        verbose_name = "Booking User List"
+        verbose_name_plural = "Booking User Lists"

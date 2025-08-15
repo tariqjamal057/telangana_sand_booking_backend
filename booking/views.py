@@ -1,16 +1,17 @@
 from rest_framework.views import APIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
-import requests
 from django.conf import settings
 import json
 
-from .models import District, StockYard, Mandal, MandalVillage
+from .models import BookingUserCredential, District, StockYard, Mandal, MandalVillage
 from .serializers import (
     DistrictSerializer,
     DistrictStockyardSerializer,
     MandalSerializer,
     MandalVillageSerializer,
+    BookingUserCredentialSerializer,
 )
 
 
@@ -149,3 +150,13 @@ class GetMandalVillages(APIView):
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class CreateListUser(ListCreateAPIView):
+    queryset = BookingUserCredential.objects.all()
+    serializer_class = BookingUserCredentialSerializer
+
+
+class BookingUserRetriveUpdateView(RetrieveUpdateAPIView):
+    queryset = BookingUserCredential.objects.all()
+    serializer_class = BookingUserCredentialSerializer
