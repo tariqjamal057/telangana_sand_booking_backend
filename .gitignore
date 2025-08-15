@@ -9,3 +9,6 @@ env/
 # temp files
 stockyards.*
 getstock.py
+
+# staticfiles
+staticfiles
