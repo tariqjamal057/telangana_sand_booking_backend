@@ -44,6 +44,11 @@ class BookingUserCredentialSerializer(serializers.ModelSerializer):
         model = BookingUserCredential
         fields = "__all__"
 
+class CreateBookingMasterDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookingMasterData
+        fields = "__all__"
+
 
 class BookingMasterDataSerializer(serializers.ModelSerializer):
     district = DistrictSerializer()

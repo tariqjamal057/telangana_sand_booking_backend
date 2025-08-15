@@ -14,6 +14,7 @@ from .models import (
     MandalVillage,
 )
 from .serializers import (
+    CreateBookingMasterDataSerializer,
     DistrictSerializer,
     DistrictStockyardSerializer,
     MandalSerializer,
@@ -172,7 +173,11 @@ class BookingUserRetriveUpdateView(RetrieveUpdateAPIView):
 
 class CreateListBookingMasterData(ListCreateAPIView):
     queryset = BookingMasterData.objects.all()
-    serializer_class = BookingMasterDataSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return CreateBookingMasterDataSerializer
+        return BookingMasterDataSerializer
 
 
 class BookingMasterDataRetriveUpdateView(RetrieveUpdateAPIView):
