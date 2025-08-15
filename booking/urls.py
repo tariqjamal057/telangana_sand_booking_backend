@@ -7,6 +7,8 @@ from .views import (
     GetMandalVillages,
     CreateListUser,
     BookingUserRetriveUpdateView,
+    CreateListBookingMasterData,
+    BookingMasterDataRetriveUpdateView,
 )
 
 urlpatterns = [
@@ -25,4 +27,14 @@ urlpatterns = [
     ),
     path("users", CreateListUser.as_view(), name="create-users"),
     path("users/<int:pk>", BookingUserRetriveUpdateView.as_view(), name="update-users"),
+    path(
+        "master-data",
+        CreateListBookingMasterData.as_view(),
+        name="create-booking-master-data",
+    ),
+    path(
+        "master-data/<int:pk>",
+        BookingMasterDataRetriveUpdateView.as_view(),
+        name="update-booking-master-data",
+    ),
 ]

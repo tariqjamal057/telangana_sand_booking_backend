@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class UserOTP(models.Model):
     phone_number = models.CharField(max_length=15)
@@ -7,12 +8,10 @@ class UserOTP(models.Model):
     otp_created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'user_otp'
-        verbose_name = 'User OTP'
-        verbose_name_plural = 'User OTPs'
-        unique_together = ('phone_number', 'otp_secret')
-
-
+        db_table = "user_otp"
+        verbose_name = "User OTP"
+        verbose_name_plural = "User OTPs"
+        unique_together = ("phone_number", "otp_secret")
 
     def __str__(self):
         return f"OTP for {self.phone_number} is {self.otp_secret}"

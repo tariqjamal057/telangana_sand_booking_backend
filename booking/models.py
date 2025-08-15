@@ -65,3 +65,39 @@ class BookingUserCredential(models.Model):
         db_table = "booking_user_list"
         verbose_name = "Booking User List"
         verbose_name_plural = "Booking User Lists"
+
+
+class BookingMasterData(models.Model):
+    name = models.CharField(max_length=250, unique=True)
+    booking_user = models.ForeignKey(
+        BookingUserCredential,
+        on_delete=models.CASCADE,
+        related_name="booking_user_credential",
+    )
+    district = models.ForeignKey(
+        District, on_delete=models.CASCADE, related_name="booking_master_data"
+    )
+    stockyard = models.ForeignKey(
+        StockYard, on_delete=models.CASCADE, related_name="booking_master_data"
+    )
+    gstin = models.CharField(max_length=250, null=True, blank=True)
+    sand_purpose = models.CharField(max_length=250, null=True, blank=True)
+    vehicle_no = models.CharField(max_length=250)
+    delivery_district = models.ForeignKey(
+        District, on_delete=models.CASCADE, related_name="booking_master_data_delivery"
+    )
+    delivery_mandal = models.ForeignKey(
+        Mandal, on_delete=models.CASCADE, related_name="booking_master_data_delivery"
+    )
+    delivery_village = models.ForeignKey(
+        MandalVillage,
+        on_delete=models.CASCADE,
+        related_name="booking_master_data_delivery",
+    )
+    delivery_slot = models.CharField(max_length=250)
+    payment_mode = models.CharField(max_length=250)
+
+    class Meta:
+        db_table = "booking_master_data"
+        verbose_name = "Booking Master Data"
+        verbose_name_plural = "Booking Master Data"

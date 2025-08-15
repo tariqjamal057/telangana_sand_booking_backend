@@ -1,5 +1,12 @@
 from rest_framework import serializers
-from .models import District, StockYard, Mandal, MandalVillage, BookingUserCredential
+from .models import (
+    BookingMasterData,
+    District,
+    StockYard,
+    Mandal,
+    MandalVillage,
+    BookingUserCredential,
+)
 
 
 class DistrictSerializer(serializers.ModelSerializer):
@@ -35,4 +42,17 @@ class MandalVillageSerializer(serializers.ModelSerializer):
 class BookingUserCredentialSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookingUserCredential
+        fields = "__all__"
+
+
+class BookingMasterDataSerializer(serializers.ModelSerializer):
+    district = DistrictSerializer()
+    stockyard = DistrictStockyardSerializer()
+    delivery_district = DistrictSerializer()
+    delivery_mandal = MandalSerializer()
+    delivery_village = MandalVillageSerializer()
+    booking_user = BookingUserCredentialSerializer()
+
+    class Meta:
+        model = BookingMasterData
         fields = "__all__"

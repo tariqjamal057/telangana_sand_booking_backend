@@ -5,13 +5,21 @@ from rest_framework import status
 from django.conf import settings
 import json
 
-from .models import BookingUserCredential, District, StockYard, Mandal, MandalVillage
+from .models import (
+    BookingMasterData,
+    BookingUserCredential,
+    District,
+    StockYard,
+    Mandal,
+    MandalVillage,
+)
 from .serializers import (
     DistrictSerializer,
     DistrictStockyardSerializer,
     MandalSerializer,
     MandalVillageSerializer,
     BookingUserCredentialSerializer,
+    BookingMasterDataSerializer,
 )
 
 
@@ -160,3 +168,13 @@ class CreateListUser(ListCreateAPIView):
 class BookingUserRetriveUpdateView(RetrieveUpdateAPIView):
     queryset = BookingUserCredential.objects.all()
     serializer_class = BookingUserCredentialSerializer
+
+
+class CreateListBookingMasterData(ListCreateAPIView):
+    queryset = BookingMasterData.objects.all()
+    serializer_class = BookingMasterDataSerializer
+
+
+class BookingMasterDataRetriveUpdateView(RetrieveUpdateAPIView):
+    queryset = BookingMasterData.objects.all()
+    serializer_class = BookingMasterDataSerializer
