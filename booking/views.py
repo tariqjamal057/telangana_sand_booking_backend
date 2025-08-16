@@ -182,4 +182,8 @@ class CreateListBookingMasterData(ListCreateAPIView):
 
 class BookingMasterDataRetriveUpdateView(RetrieveUpdateAPIView):
     queryset = BookingMasterData.objects.all()
-    serializer_class = BookingMasterDataSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == "PUT":
+            return CreateBookingMasterDataSerializer
+        return BookingMasterDataSerializer
