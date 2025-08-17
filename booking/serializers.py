@@ -6,6 +6,7 @@ from .models import (
     Mandal,
     MandalVillage,
     BookingUserCredential,
+    BookingHistory,
 )
 
 
@@ -165,4 +166,21 @@ class BookingMasterDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BookingMasterData
+        fields = "__all__"
+
+
+class CreateBookingHistorySerializer(serializers.Serializer):
+
+    booking_master = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = BookingHistory
+        fields = "__all__"
+
+
+class BookingHistorySerializer(serializers.ModelSerializer):
+    booking_master = BookingMasterDataSerializer()
+
+    class Meta:
+        model = BookingHistory
         fields = "__all__"

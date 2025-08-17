@@ -101,3 +101,19 @@ class BookingMasterData(models.Model):
         db_table = "booking_master_data"
         verbose_name = "Booking Master Data"
         verbose_name_plural = "Booking Master Data"
+
+
+class BookingHistory(models.Model):
+    booking_master = models.ForeignKey(
+        BookingMasterData, on_delete=models.CASCADE, related_name="booking_history"
+    )
+    started_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    proxy = models.CharField(max_length=250, null=True, blank=True)
+    status = models.CharField(max_length=250, null=True, blank=True)
+    message = models.TextField(null=True, blank=True)
+
+    class Meta:
+        db_table = "booking_history"
+        verbose_name = "Booking History"
+        verbose_name_plural = "Booking History"

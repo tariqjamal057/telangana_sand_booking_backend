@@ -6,6 +6,7 @@ from .models import (
     MandalVillage,
     BookingUserCredential,
     BookingMasterData,
+    BookingHistory,
 )
 
 
@@ -15,3 +16,4 @@ admin.site.register(Mandal)
 admin.site.register(MandalVillage)
 admin.site.register(BookingUserCredential)
 admin.site.register(BookingMasterData)
+admin.site.register(BookingHistory)

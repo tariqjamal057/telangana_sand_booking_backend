@@ -9,6 +9,8 @@ from .views import (
     BookingUserRetriveUpdateView,
     CreateListBookingMasterData,
     BookingMasterDataRetriveUpdateView,
+    StartBookingAutomationView,
+    BookingHistoryView,
 )
 
 urlpatterns = [
@@ -37,4 +39,6 @@ urlpatterns = [
         BookingMasterDataRetriveUpdateView.as_view(),
         name="update-booking-master-data",
     ),
+    path("start", StartBookingAutomationView.as_view(), name="start_booking"),
+    path("history", BookingHistoryView.as_view(), name="booking_history"),
 ]

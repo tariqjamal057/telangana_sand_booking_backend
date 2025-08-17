@@ -1,11 +1,20 @@
+import datetime
+import random
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveUpdateAPIView,
+    ListAPIView,
+)
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
 import json
 
+from booking.selenium_script import SandBookingScript
+
 from .models import (
+    BookingHistory,
     BookingMasterData,
     BookingUserCredential,
     District,
@@ -14,6 +23,7 @@ from .models import (
     MandalVillage,
 )
 from .serializers import (
+    BookingHistorySerializer,
     CreateBookingMasterDataSerializer,
     DistrictSerializer,
     DistrictStockyardSerializer,
@@ -187,3 +197,59 @@ class BookingMasterDataRetriveUpdateView(RetrieveUpdateAPIView):
         if self.request.method == "PUT":
             return CreateBookingMasterDataSerializer
         return BookingMasterDataSerializer
+
+
+def get_new_proxy():
+    PROXY_POOL = [
+        "http://bhaktabhim.duckdns.org:8002",
+        "http://bhaktabhim.duckdns.org:8003",
+        "http://bhaktabhim.duckdns.org:8004",
+        "http://bhaktabhim.duckdns.org:8005",
+        "http://bhaktabhim.duckdns.org:8006",
+    ]
+    return random.choice(PROXY_POOL)
+
+
+class StartBookingAutomationView(APIView):
+    def post(self, request):
+        print(request.data)
+        booking_master_id = request.data.get("booking_master_id")
+        if not booking_master_id:
+            return Response(
+                {"error": "booking_master_id is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            booking_master = BookingMasterData.objects.get(id=booking_master_id)
+        except BookingMasterData.DoesNotExist:
+            return Response(
+                {"error": "Invalid booking_master_id"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        proxy = get_new_proxy()
+        history = BookingHistory.objects.create(
+            booking_master=booking_master, proxy=proxy, status="running"
+        )
+
+        try:
+            script = SandBookingScript(proxy=proxy, booking_master_id=booking_master.id)
+            script.initial_setup()
+            # script.run()
+            history.status = "success"
+            history.message = "Booking completed successfully"
+        except Exception as e:
+            history.status = "failed"
+            history.message = str(e)
+        finally:
+            history.ended_at = datetime.datetime.now()
+            history.save()
+
+        return Response(
+            BookingHistorySerializer(history).data, status=status.HTTP_200_OK
+        )
+
+
+class BookingHistoryView(ListAPIView):
+    queryset = BookingHistory.objects.all()
+    serializer_class = BookingHistorySerializer
