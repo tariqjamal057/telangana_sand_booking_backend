@@ -33,10 +33,6 @@ class SandBookingScript:
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
 
-        # 👇 unique user-data-dir every time
-        user_data_dir = tempfile.mkdtemp()
-        chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
-
         # 👇 unique profile directory every time
         profile_name = f"profile_{uuid.uuid4().hex}"
         chrome_options.add_argument(f"--profile-directory={profile_name}")
