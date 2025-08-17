@@ -235,7 +235,7 @@ class StartBookingAutomationView(APIView):
         try:
             script = SandBookingScript(proxy=proxy, booking_master_id=booking_master.id)
             script.initial_setup()
-            # script.run()
+            script.run()
             history.status = "success"
             history.message = "Booking completed successfully"
         except Exception as e:
