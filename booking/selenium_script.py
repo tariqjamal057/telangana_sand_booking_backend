@@ -29,17 +29,22 @@ class SandBookingScript:
         chrome_options.add_argument("--start-maximized")
 
         # 👇 still required on many Linux servers
+        chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
+        # chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
 
-        # 👇 unique profile directory every time
-        profile_name = f"profile_{uuid.uuid4().hex}"
-        chrome_options.add_argument(f"--profile-directory={profile_name}")
+        # # 👇 unique user-data-dir every time
+        # user_data_dir = tempfile.mkdtemp()
+        # chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
 
-        # 👇 unique debugging port (avoid collisions)
-        port = 9222 + int(uuid.uuid4().int % 1000)
-        chrome_options.add_argument(f"--remote-debugging-port={port}")
+        # 👇 unique profile directory every time
+        # profile_name = f"profile_{uuid.uuid4().hex}"
+        # chrome_options.add_argument(f"--profile-directory={profile_name}")
+
+        # # 👇 unique debugging port (avoid collisions)
+        # port = 9222 + int(uuid.uuid4().int % 1000)
+        # chrome_options.add_argument(f"--remote-debugging-port={port}")
 
         # Configure proxy if provided
         # TODO: Need to diaable once issue fixed
