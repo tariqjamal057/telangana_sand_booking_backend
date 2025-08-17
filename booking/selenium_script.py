@@ -16,6 +16,7 @@ from PIL import Image
 import io
 import easyocr
 import numpy as np
+import tempfile
 
 from .models import BookingMasterData
 
@@ -25,6 +26,13 @@ class SandBookingScript:
         # selenium
         chrome_options = Options()
         chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument("--headless=new")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+
+        # 👇 Fix: assign unique profile dir
+        profile_dir = tempfile.mkdtemp(prefix="chrome_profile_")
+        chrome_options.add_argument(f"--user-data-dir={profile_dir}")
 
         # Configure proxy if provided
         # TODO: Need to diaable once issue fixed
