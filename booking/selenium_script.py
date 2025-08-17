@@ -34,7 +34,7 @@ class SandBookingScript:
         chrome_options.add_argument("--disable-gpu")
 
         # 👇 unique user-data-dir every time
-        user_data_dir = tempfile.mkdtemp(prefix="chrome_user_")
+        user_data_dir = tempfile.mkdtemp()
         chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
 
         # 👇 unique profile directory every time
