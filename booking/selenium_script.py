@@ -29,7 +29,7 @@ class SandBookingScript:
         chrome_options.add_argument("--start-maximized")
 
         # 👇 still required on many Linux servers
-        chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         # chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
@@ -582,19 +582,25 @@ class SandBookingScript:
         self.driver.get(self.login_url)
         time.sleep(5)
 
-        self.fill_login_details()
-        self.process_login()
-        self.navigate_to_new_booking()
-        self.select_district()
-        self.select_stockyard()
-        self.fill_customer_gstin()
-        self.select_purpose_of_sand()
-        self.fill_delivery_address()
-        self.fill_vehicle_number()
-        self.select_delivery_slot_by_text()
-        self.fill_captcha_and_payment()
-        self.click_register()
-        self.handle_booking_otp()
+        for i in range(3):
 
-        time.sleep(200)
-        # self.driver.quit()
+            if not self.fill_login_details():
+                self.driver.refresh()
+                time.sleep(2)
+                continue
+            else:
+                if self.process_login():
+                    self.navigate_to_new_booking()
+                    self.select_district()
+                    self.select_stockyard()
+                    self.fill_customer_gstin()
+                    self.select_purpose_of_sand()
+                    self.fill_delivery_address()
+                    self.fill_vehicle_number()
+                    self.select_delivery_slot_by_text()
+                    self.fill_captcha_and_payment()
+                    self.click_register()
+                    self.handle_booking_otp()
+
+                    time.sleep(200)
+                    # self.driver.quit()
