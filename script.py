@@ -197,17 +197,17 @@ def process_login():
     )
 
     try:
-    #     login_button = WebDriverWait(driver, 20).until(
-    #         EC.presence_of_element_located((By.ID, "btnLogin"))
-    #     )
-    #     driver.execute_script(
-    #         """
-    #     arguments[0].style.display = 'block';
-    #     arguments[0].disabled = false;
-    #     arguments[0].click();
-    # """,
-    #         login_button,
-    #     )
+        #     login_button = WebDriverWait(driver, 20).until(
+        #         EC.presence_of_element_located((By.ID, "btnLogin"))
+        #     )
+        #     driver.execute_script(
+        #         """
+        #     arguments[0].style.display = 'block';
+        #     arguments[0].disabled = false;
+        #     arguments[0].click();
+        # """,
+        #         login_button,
+        #     )
         driver.execute_script("arguments[0].disabled = false;", login_button)
         login_button.click()
         print("[INFO] Login button clicked successfully")
@@ -461,11 +461,10 @@ def select_delivery_slot_by_text(slot_text="14-08-2025 (12NOON - 06PM)"):
 def click_register():
     """Enable (force show) and click the Register button."""
     register_btn = WebDriverWait(driver, 20).until(
-            EC.element_to_be_clickable((By.ID, "btnRegister"))
-        )
+        EC.element_to_be_clickable((By.ID, "btnRegister"))
+    )
     driver.execute_script("arguments[0].disabled = false;", register_btn)
     register_btn.click()
-
 
     print("[SUCCESS] Register button enabled and clicked")
 

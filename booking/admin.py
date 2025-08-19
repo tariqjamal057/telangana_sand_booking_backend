@@ -14,10 +14,8 @@ class StockYardAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "district",
-        "contact_person_name",
-        "contact_person_number",
+        "district__did",
         "sand_quality",
-        "sand_price",
     )
     search_fields = ("name", "district__name")
     list_filter = ("district", "sand_quality")
@@ -89,8 +87,8 @@ admin.site.register(District, DistrictAdmin)
 
 
 class MandalAdmin(admin.ModelAdmin):
-    list_display = ("name",  "mid")
-    search_fields = ("name",  "mid")
+    list_display = ("name", "mid")
+    search_fields = ("name", "mid")
 
 
 admin.site.register(Mandal, MandalAdmin)

@@ -66,22 +66,7 @@ class LoadInitialDataView(APIView):
             )
 
             # load district stockyards
-            for district in district_stockyards:
-                district_obj = District.objects.get(did=district["districtId"])
-                StockYard.objects.bulk_create(
-                    [
-                        StockYard(
-                            name=stockyard["stockyard_name"],
-                            district=district_obj,
-                            contact_person_name=stockyard["contact_person"],
-                            contact_person_number=stockyard["contact_number"],
-                            address=stockyard["address"],
-                            sand_quality=stockyard["sand_quality"],
-                            sand_price=stockyard["sand_price"],
-                        )
-                        for stockyard in district["stockyards"]
-                    ]
-                )
+            StockYard().load_stockyard()
 
             # load district mandals
             for district in district_mandals:
@@ -136,7 +121,7 @@ class GetDistrictStockyard(APIView):
     def get(self, request, did):
         try:
             district = District.objects.get(did=did)
-            stockyards = StockYard.objects.filter(district=district)
+            stockyards = StockYard().get_today_stockyard(district_id=district.id)
             serializer = DistrictStockyardSerializer(stockyards, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
