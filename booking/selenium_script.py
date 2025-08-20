@@ -323,7 +323,6 @@ class SandBookingScript:
                 break
 
     def select_district(self):
-        """Select district with value 24 (BHADRADRI KOTHAGUDEM)."""
         label_td = WebDriverWait(self.driver, 20).until(
             EC.presence_of_element_located(
                 (
@@ -336,8 +335,8 @@ class SandBookingScript:
         dropdown = label_td.find_element(By.XPATH, "./following-sibling::td/select")
 
         select = Select(dropdown)
-        select.select_by_value("24")
-        print("[SUCCESS] District selected: 24")
+        select.select_by_value(self.district)
+        print(f"[SUCCESS] District selected: {self.district}")
 
     def select_stockyard(self, timeout=30):
         """Select stockyard radio by name with fuzzy matching (works with dynamic table IDs)."""
@@ -578,18 +577,91 @@ class SandBookingScript:
             print(f"[ERROR] Booking OTP handling failed: {e}")
             return False
 
-    def run(self):
-        self.driver.get(self.login_url)
-        time.sleep(5)
+    def is_server_error_page(self):
+        """Check if current page shows server error"""
+        try:
+            # Check for common server error indicators
+            error_indicators = [
+                "server error",
+                "503 service unavailable",
+                "504 gateway timeout",
+                "502 bad gateway",
+                "500 internal server error",
+                "maintenance",
+                "temporarily unavailable",
+            ]
 
-        for i in range(3):
+            page_source = self.driver.page_source.lower()
+            for indicator in error_indicators:
+                if indicator in page_source:
+                    print(f"[ERROR] Server error detected: {indicator}")
+                    return True
 
-            if not self.fill_login_details():
-                self.driver.refresh()
-                time.sleep(2)
-                continue
-            else:
+            # Check page title for errors
+            title = self.driver.title.lower()
+            error_titles = ["error", "service unavailable", "maintenance"]
+            for error_title in error_titles:
+                if error_title in title:
+                    print(f"[ERROR] Error page detected via title: {title}")
+                    return True
+
+            return False
+        except Exception as e:
+            print(f"[WARN] Error checking server status: {e}")
+            return False
+
+    def wait_for_page_load(self, timeout=30):
+        """Wait for page to load and check for server errors"""
+        try:
+            # Wait for page to start loading
+            WebDriverWait(self.driver, timeout).until(
+                lambda driver: driver.execute_script("return document.readyState")
+                == "complete"
+            )
+
+            # Check if it's a server error page
+            if self.is_server_error_page():
+                return False
+
+            # Check if login form elements are present
+            try:
+                WebDriverWait(self.driver, 5).until(
+                    EC.presence_of_element_located((By.ID, "tblLogIn"))
+                )
+                return True
+            except TimeoutException:
+                print("[WARN] Login form not found - possible server issue")
+                return False
+
+        except TimeoutException:
+            print("[ERROR] Page load timeout")
+            return False
+        except Exception as e:
+            print(f"[ERROR] Error during page load: {e}")
+            return False
+
+    def retry_with_backoff(self, max_retries=5, base_delay=2, max_delay=30):
+        """Retry mechanism with exponential backoff for server errors"""
+        retry_count = 0
+
+        while retry_count < max_retries:
+            try:
+                print(f"[INFO] Attempt {retry_count + 1}/{max_retries}")
+
+                # Navigate to login page
+                self.driver.get(self.login_url)
+
+                # Wait for page to load properly
+                if not self.wait_for_page_load():
+                    raise Exception("Server error or page load failure")
+
+                # Try to fill login details
+                if not self.fill_login_details():
+                    raise Exception("Failed to fill login details")
+
+                # Process login
                 if self.process_login():
+                    # Continue with booking process
                     self.navigate_to_new_booking()
                     self.select_district()
                     self.select_stockyard()
@@ -603,4 +675,48 @@ class SandBookingScript:
                     self.handle_booking_otp()
 
                     time.sleep(200)
-                    # self.driver.quit()
+                    return True
+                else:
+                    raise Exception("Login process failed")
+
+            except Exception as e:
+                retry_count += 1
+                if retry_count >= max_retries:
+                    print(f"[ERROR] Max retries ({max_retries}) reached. Giving up.")
+                    return False
+
+                # Calculate exponential backoff delay
+                delay = min(base_delay * (2 ** (retry_count - 1)), max_delay)
+                print(f"[INFO] Retrying in {delay} seconds... Error: {str(e)}")
+
+                # Add some jitter to prevent thundering herd
+                import random
+
+                jitter = random.uniform(0.1, 0.5) * delay
+                total_delay = delay + jitter
+
+                time.sleep(total_delay)
+
+                # Refresh page before retry
+                try:
+                    self.driver.refresh()
+                    time.sleep(2)
+                except:
+                    pass
+
+        return False
+
+    def run(self):
+        """Main execution with robust retry mechanism"""
+        print("[INFO] Starting booking process with server error handling...")
+
+        # Use the new retry mechanism
+        success = self.retry_with_backoff(max_retries=5, base_delay=3, max_delay=60)
+
+        if not success:
+            print("[ERROR] Booking process failed after all retries")
+        else:
+            print("[SUCCESS] Booking process completed successfully")
+
+        # Optionally quit driver
+        # self.driver.quit()
