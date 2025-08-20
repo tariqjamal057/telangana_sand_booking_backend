@@ -81,8 +81,12 @@ WSGI_APPLICATION = "sand_booking.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "sand_booking",
+        "USER": "root",
+        "PASSWORD": "sand",
+        "HOST": "31.97.232.231",
+        "PORT": 5432,
     }
 }
 
@@ -123,7 +127,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
