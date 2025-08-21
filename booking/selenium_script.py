@@ -715,8 +715,10 @@ class SandBookingScript:
 
         if not success:
             print("[ERROR] Booking process failed after all retries")
+            return False
         else:
             print("[SUCCESS] Booking process completed successfully")
+            return True
 
         # Optionally quit driver
         # self.driver.quit()
